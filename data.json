@@ -1,0 +1,192 @@
+{
+  "fetched_at": "2026-07-20T19:58:52Z",
+  "source": "polymarket-gamma",
+  "prices": {
+    "will-china-invade-taiwan-before-2027": {
+      "outcomes": [
+        {
+          "n": "Yes",
+          "p": 0.0435
+        },
+        {
+          "n": "No",
+          "p": 0.9565
+        }
+      ],
+      "volume": 38843033.18787535,
+      "volume24hr": 79813.41457499984
+    },
+    "will-the-us-invade-iran-before-2027": {
+      "outcomes": [
+        {
+          "n": "Yes",
+          "p": 0.275
+        },
+        {
+          "n": "No",
+          "p": 0.725
+        }
+      ],
+      "volume": 45684860.78207178,
+      "volume24hr": 805012.7593379996
+    },
+    "venezuela-leader-end-of-2026": {
+      "outcomes": [
+        {
+          "n": "Nicol\u00e1s Maduro",
+          "p": 0.801
+        },
+        {
+          "n": "Delcy Rodr\u00edguez",
+          "p": 0.125
+        },
+        {
+          "n": "Mar\u00eda Corina Machado",
+          "p": 0.0255
+        },
+        {
+          "n": "No Head of State",
+          "p": 0.012
+        },
+        {
+          "n": "Jorge Rodr\u00edguez",
+          "p": 0.0075
+        }
+      ],
+      "volume": 93906069.959112,
+      "volume24hr": 25260.055335
+    },
+    "fed-decision-in-july-181": {
+      "outcomes": [
+        {
+          "n": "No change",
+          "p": 0.9245
+        },
+        {
+          "n": "25 bps increase",
+          "p": 0.0725
+        },
+        {
+          "n": "25 bps decrease",
+          "p": 0.0045
+        },
+        {
+          "n": "50+ bps increase",
+          "p": 0.0035
+        },
+        {
+          "n": "50+ bps decrease",
+          "p": 0.0015
+        }
+      ],
+      "volume": 75192294.02432205,
+      "volume24hr": 3536426.2369810008
+    },
+    "how-many-fed-rate-cuts-in-2026": {
+      "outcomes": [
+        {
+          "n": "0 (0 bps)",
+          "p": 0.8455
+        },
+        {
+          "n": "1 (25 bps)",
+          "p": 0.105
+        },
+        {
+          "n": "2 (50 bps)",
+          "p": 0.0235
+        },
+        {
+          "n": "3 (75 bps)",
+          "p": 0.007
+        },
+        {
+          "n": "7 (175 bps)",
+          "p": 0.006
+        }
+      ],
+      "volume": 44380812.78618283,
+      "volume24hr": 1088044.8086060002
+    },
+    "brazil-presidential-election": {
+      "outcomes": [
+        {
+          "n": "Luiz In\u00e1cio Lula da Silva",
+          "p": 0.605
+        },
+        {
+          "n": "Fl\u00e1vio Bolsonaro",
+          "p": 0.2675
+        },
+        {
+          "n": "Renan Santos",
+          "p": 0.0845
+        },
+        {
+          "n": "Michelle Bolsonaro",
+          "p": 0.016
+        },
+        {
+          "n": "Ronaldo Caiado",
+          "p": 0.0135
+        }
+      ],
+      "volume": 113982506.54296516,
+      "volume24hr": 148410.53699199995
+    },
+    "xi-jinping-out-before-2027": {
+      "outcomes": [
+        {
+          "n": "Yes",
+          "p": 0.0505
+        },
+        {
+          "n": "No",
+          "p": 0.9495
+        }
+      ],
+      "volume": 11456726.21861299,
+      "volume24hr": 66889.083289
+    },
+    "putin-out-before-2027": {
+      "outcomes": [
+        {
+          "n": "June 30, 2027",
+          "p": 0.165
+        },
+        {
+          "n": "December 31, 2026",
+          "p": 0.085
+        },
+        {
+          "n": "September 30, 2026",
+          "p": 0.038
+        },
+        {
+          "n": "August 31, 2026",
+          "p": 0.0195
+        },
+        {
+          "n": "July 31, 2026",
+          "p": 0.0035
+        }
+      ],
+      "volume": 18026861.697251044,
+      "volume24hr": 90715.986826
+    },
+    "netanyahu-out-before-2027": {
+      "outcomes": [
+        {
+          "n": "December 31",
+          "p": 0.38
+        },
+        {
+          "n": "July 31",
+          "p": 0.0035
+        }
+      ],
+      "volume": 123555162.59006661,
+      "volume24hr": 13678.337318
+    }
+  }
+}
