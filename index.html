@@ -152,6 +152,46 @@ a { color:inherit; }
   .tape__cell:nth-child(1), .tape__cell:nth-child(2) { border-bottom:1px solid var(--m-black); }
 }
 
+/* brand bar */
+.brandbar { display:flex; align-items:center; gap:20px; padding:14px 24px; border-bottom:1px solid var(--m-black); }
+.brandmark { display:inline-flex; align-items:center; gap:11px; text-decoration:none; color:var(--m-black); }
+.brandmark .wm { font-family:var(--m-sans); font-weight:900; font-size:20px; letter-spacing:0.03em; line-height:1; }
+.brandmark .wm sup { font-size:9px; }
+.brandbar__tag { font-family:var(--m-mono); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--m-ash); }
+.brandbar__clock { margin-left:auto; font-family:var(--m-mono); font-size:11px; letter-spacing:0.1em;
+  color:var(--m-graphite); font-variant-numeric:tabular-nums; }
+.brandbar__clock b { color:var(--m-orange-dim); font-weight:700; }
+@media (max-width:900px){ .brandbar__tag{display:none} }
+
+/* board subtitle */
+.board__sub { font-family:var(--m-mono); font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--m-ash); margin:-14px 0 28px; }
+
+/* card interactions */
+.card { transition:transform .13s ease, background .13s ease; }
+.card:hover { transform:translateY(-3px); background:#ffffff; }
+.card__rel { transition:background .13s ease; }
+
+/* featured (top-ranked) market */
+.card--feature { grid-column:1 / -1; position:relative; }
+.card--feature::before { content:""; position:absolute; top:-1px; left:-1px; width:20px; height:20px;
+  border-top:3px solid var(--m-orange); border-left:3px solid var(--m-orange); }
+.card--feature::after { content:""; position:absolute; bottom:-1px; right:-1px; width:20px; height:20px;
+  border-bottom:3px solid var(--m-orange); border-right:3px solid var(--m-orange); }
+.card--feature .card__rel .num { font-size:40px; }
+.card--feature .card__rel { min-width:96px; }
+.card--feature .card__body { display:grid; grid-template-columns:1.35fr 1fr; gap:6px 48px; align-items:start; }
+.card--feature .card__title { font-size:clamp(28px,3.2vw,40px); grid-column:1; }
+.card--feature .card__why { grid-column:1; font-size:13px; }
+.card--feature .outs { grid-column:2; grid-row:1 / span 3; align-self:center; gap:11px; }
+.card--feature .out { grid-template-columns:minmax(96px,34%) 1fr 56px; }
+.card--feature .out .tr { height:11px; }
+.feat-flag { color:var(--m-orange-dim); font-weight:700; }
+@media (max-width:900px){
+  .card--feature .card__body { grid-template-columns:1fr; }
+  .card--feature .outs { grid-column:1; grid-row:auto; margin-top:4px; }
+}
+
 /* footnote */
 .footnote { padding:0 48px 48px; max-width:1320px; margin:0 auto;
   font-family:var(--m-mono); font-size:11px; line-height:1.7; color:var(--m-ash); }
@@ -162,6 +202,18 @@ a { color:inherit; }
 <div class="m-frame">
   <span class="m-reg m-reg--tl"></span><span class="m-reg m-reg--tr"></span>
   <span class="m-reg m-reg--bl"></span><span class="m-reg m-reg--br"></span>
+
+  <div class="brandbar">
+    <a class="brandmark" href="https://polymarket.com" target="_blank" rel="noopener" aria-label="Moria">
+      <svg viewBox="0 0 100 87" width="30" aria-hidden="true">
+        <polygon points="50,2 98,85 2,85" fill="none" stroke="currentColor" stroke-width="4.5"/>
+        <polygon points="50,20 80,72 20,72" fill="none" stroke="currentColor" stroke-width="1.8" stroke-opacity="0.45"/>
+      </svg>
+      <span class="wm">MORIA<sup>®</sup></span>
+    </a>
+    <span class="brandbar__tag">Penfold Market Intelligence</span>
+    <span class="brandbar__clock"><b>●</b> <span id="clock">--:--:--</span> UTC</span>
+  </div>
 
   <header class="m-meta">
     <span>Penfold · Document-Integrity Desk</span>
@@ -200,7 +252,7 @@ a { color:inherit; }
 
   <section class="board">
     <h2>The board · <span id="boardCount"></span> markets</h2>
-    <div style="height:24px"></div>
+    <p class="board__sub">Ranked by relevance to the concentrate book · live trader-implied odds</p>
     <div class="board-grid" id="grid"></div>
   </section>
 
@@ -359,9 +411,9 @@ const leadIdx = m => m.outcomes.reduce((best,o,j) => o.p > m.outcomes[best].p ? 
 function renderBoard() {
   $("boardCount").textContent = BOARD.length;
   $("grid").innerHTML = BOARD.map((m,i) => `
-    <article class="card" data-slug="${m.slug}">
+    <article class="card${i===0?" card--feature":""}" data-slug="${m.slug}">
       <div class="card__head">
-        <span class="card__lens">${m.lens}</span>
+        <span class="card__lens">${i===0?'<span class="feat-flag">Top signal · </span>':""}${m.lens}</span>
         <span class="card__rel"><span class="num">${m.rel}</span><span class="cap">REL / 100</span></span>
       </div>
       <div class="card__body">
@@ -502,9 +554,16 @@ async function refresh() {
   fetchCommodities();
 }
 
+function tickClock() {
+  const el = $("clock");
+  if (el) el.textContent = new Date().toISOString().slice(11,19);
+}
+
 renderBoard();
 renderTape();
 setFeed(false);
+tickClock();
+setInterval(tickClock, 1000);
 loadData();
 setInterval(refresh, 60000);
 </script>
