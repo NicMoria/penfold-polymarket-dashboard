@@ -130,6 +130,28 @@ a { color:inherit; }
 .x-table td.score { font-weight:700; color:var(--m-oxide); font-variant-numeric:tabular-nums; }
 @media (max-width:900px){ .excluded{padding:0 24px 64px} .x-table td:nth-child(3),.x-table th:nth-child(3){display:none} }
 
+/* commodity tape */
+.tape { padding:0 48px; max-width:1320px; margin:32px auto 0; }
+.tape__head { display:flex; justify-content:space-between; gap:16px; padding:0 0 10px;
+  font-family:var(--m-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--m-ash); }
+.tape__head .up-dot { display:inline-block; width:8px; height:8px; margin-right:6px; background:var(--m-safety); vertical-align:middle; }
+.tape__head .up-dot.is-live { background:var(--m-drab); }
+.tape__grid { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--m-black); }
+.tape__cell { padding:18px 20px; border-right:1px solid var(--m-black); background:var(--m-bone); }
+.tape__cell:last-child { border-right:0; }
+.tape__name { font-family:var(--m-mono); font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--m-graphite); }
+.tape__venue { font-family:var(--m-mono); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--m-ash); margin-top:3px; }
+.tape__price { font-family:var(--m-serif); font-size:36px; line-height:1.05; color:var(--m-black); margin-top:12px; font-variant-numeric:tabular-nums; }
+.tape__unit { font-family:var(--m-mono); font-size:10px; letter-spacing:0.04em; color:var(--m-ash); margin-top:2px; }
+.tape__delta { font-family:var(--m-mono); font-size:12px; font-weight:700; margin-top:8px; font-variant-numeric:tabular-nums; }
+.tape__delta.up { color:var(--m-drab); } .tape__delta.down { color:var(--m-oxide); } .tape__delta.flat { color:var(--m-ash); }
+@media (max-width:900px){
+  .tape { padding:0 24px; }
+  .tape__grid { grid-template-columns:1fr 1fr; }
+  .tape__cell:nth-child(2n) { border-right:0; }
+  .tape__cell:nth-child(1), .tape__cell:nth-child(2) { border-bottom:1px solid var(--m-black); }
+}
+
 /* footnote */
 .footnote { padding:0 48px 48px; max-width:1320px; margin:0 auto;
   font-family:var(--m-mono); font-size:11px; line-height:1.7; color:var(--m-ash); }
@@ -158,6 +180,14 @@ a { color:inherit; }
   </section>
 
   <div class="m-ticker"><span id="tickerA"></span><span id="tickerB" aria-hidden="true"></span></div>
+
+  <section class="tape" aria-label="Commodity tape">
+    <div class="tape__head">
+      <span>Physical tape · underlying commodities</span>
+      <span id="tapeStatus"><span class="up-dot"></span>SNAPSHOT</span>
+    </div>
+    <div class="tape__grid" id="tape"></div>
+  </section>
 
   <section class="method">
     <h2>Relevance scoring</h2>
@@ -188,7 +218,9 @@ a { color:inherit; }
     where the network allows, otherwise relayed through a read-only CORS proxy that reaches the API from an
     unblocked network (the Polymarket domain is ISP-blocked in some jurisdictions, incl. CH). A committed
     same-origin snapshot paints instantly and covers the case where every relay is unreachable. The header
-    shows the last successful fetch. Informational only. Not investment advice. Not for distribution.
+    shows the last successful fetch. Physical-tape prices — copper (COMEX HG), lithium hydroxide (CIF CJK,
+    Fastmarkets), gold (COMEX GC) and WTI crude (CL) — stream live from Yahoo Finance futures via the same
+    relay; copper and lithium are converted to USD/tonne. Informational only. Not investment advice. Not for distribution.
   </p>
 
   <footer class="m-meta m-meta--bottom"><span>From warehouse floors to on-chain settlement · Moria ®</span></footer>
@@ -256,10 +288,71 @@ const EXCLUDED = [
   { t:"F1 Drivers' Champion 2026",          rel:5,  r:"Entertainment market. No relevance." }
 ];
 
+/* ── Physical commodity tape. Live from Yahoo Finance (CME/COMEX/ICE futures)
+   via the same relay chain. Seed values are a real snapshot, 2026-07-20 UTC. ── */
+const COMMODITIES = [
+  { sym:"HG=F",  name:"Copper",            venue:"COMEX · HG",             unit:"USD / tonne",   conv:2204.62, dp:0, price:6.339,  prev:6.293 },
+  { sym:"LTH=F", name:"Lithium Hydroxide", venue:"CIF CJK · Fastmarkets",  unit:"USD / tonne",   conv:1000,    dp:0, price:20.07,  prev:19.5  },
+  { sym:"GC=F",  name:"Gold",              venue:"COMEX · GC",             unit:"USD / troy oz", conv:1,       dp:1, price:4011.0, prev:4044.0 },
+  { sym:"CL=F",  name:"Crude Oil",         venue:"WTI · CL",               unit:"USD / barrel",  conv:1,       dp:2, price:82.45,  prev:79.6  },
+];
+
 const $ = id => document.getElementById(id);
 const fmtUsd = n => n>=1e9 ? "$"+(n/1e9).toFixed(2)+"B" : n>=1e6 ? "$"+(n/1e6).toFixed(1)+"M" : "$"+Math.round(n/1e3)+"K";
 const fmtDate = iso => new Date(iso+"T00:00:00Z").toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).toUpperCase();
 const pct = p => (p*100).toFixed(1).replace(/\.0$/,"")+"%";
+const fmtNum = (n, dp) => n.toLocaleString("en-US", {minimumFractionDigits:dp, maximumFractionDigits:dp});
+
+function renderTape() {
+  $("tape").innerHTML = COMMODITIES.map(c => {
+    const px = c.price * c.conv;
+    const d = c.prev ? (c.price - c.prev) / c.prev : 0;
+    const cls = d > 0.0001 ? "up" : d < -0.0001 ? "down" : "flat";
+    const arrow = d > 0.0001 ? "▲" : d < -0.0001 ? "▼" : "▪";
+    return `<div class="tape__cell">
+      <div class="tape__name">${c.name}</div>
+      <div class="tape__venue">${c.venue}</div>
+      <div class="tape__price">${fmtNum(px, c.dp)}</div>
+      <div class="tape__unit">${c.unit}</div>
+      <div class="tape__delta ${cls}">${arrow} ${(Math.abs(d)*100).toFixed(2)}% 1D</div>
+    </div>`;
+  }).join("");
+}
+
+async function fetchCommodities() {
+  const url = "https://query1.finance.yahoo.com/v7/finance/spark?symbols=" +
+    COMMODITIES.map(c => encodeURIComponent(c.sym)).join(",") + "&range=5d&interval=1d";
+  for (const relay of RELAYS) {
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 11000);
+    try {
+      const res = await fetch(relay.wrap(url), {signal: ctl.signal, headers: relay.jina ? {"X-Return-Format":"text"} : {}});
+      clearTimeout(to);
+      if (!res.ok) continue;
+      const text = await res.text();
+      const i = text.indexOf('{"spark"');
+      if (i < 0) continue;
+      const obj = JSON.parse(text.slice(i));
+      const results = obj.spark && obj.spark.result;
+      if (!Array.isArray(results)) continue;
+      let any = false;
+      for (const r of results) {
+        const c = COMMODITIES.find(x => x.sym === r.symbol);
+        const meta = r.response && r.response[0] && r.response[0].meta;
+        if (!c || !meta) continue;
+        if (meta.regularMarketPrice != null) { c.price = +meta.regularMarketPrice; any = true; }
+        if (meta.chartPreviousClose != null) c.prev = +meta.chartPreviousClose;
+      }
+      if (any) {
+        renderTape();
+        const now = new Date().toISOString().slice(11,16);
+        $("tapeStatus").innerHTML = `<span class="up-dot is-live"></span>LIVE · ${now} UTC`;
+        return true;
+      }
+    } catch { clearTimeout(to); }
+  }
+  return false;
+}
 
 const leadIdx = m => m.outcomes.reduce((best,o,j) => o.p > m.outcomes[best].p ? j : best, 0);
 
@@ -400,14 +493,17 @@ async function loadData() {
   if (l && applyPrices(l.prices)) { live = true; when = l.when; }
   renderBoard();
   setFeed(live, when);
+  fetchCommodities();
 }
 
 async function refresh() {
   const l = await fetchLive();
   if (l && applyPrices(l.prices)) { renderBoard(); setFeed(true, l.when); }
+  fetchCommodities();
 }
 
 renderBoard();
+renderTape();
 setFeed(false);
 loadData();
 setInterval(refresh, 60000);
