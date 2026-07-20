@@ -3,271 +3,357 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penfold · Polymarket Global Dashboard</title>
+<title>PENFOLD · Event Risk Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;700&family=Archivo:wght@400;700;900&family=Doto:wght@600;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    color-scheme: light;
-    --page:           #f9f9f7;
-    --surface-1:      #fcfcfb;
-    --text-primary:   #0b0b0b;
-    --text-secondary: #52514e;
-    --text-muted:     #898781;
-    --grid:           #e1e0d9;
-    --baseline:       #c3c2b7;
-    --border:         rgba(11,11,11,0.10);
-    --bar:            #2a78d6;
-    --bar-track:      #f0efec;
-    --chip-bg:        #f0efec;
-    --chip-active-bg: #0b0b0b;
-    --chip-active-fg: #fcfcfb;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --page:           #0d0d0d;
-      --surface-1:      #1a1a19;
-      --text-primary:   #ffffff;
-      --text-secondary: #c3c2b7;
-      --text-muted:     #898781;
-      --grid:           #2c2c2a;
-      --baseline:       #383835;
-      --border:         rgba(255,255,255,0.10);
-      --bar:            #3987e5;
-      --bar-track:      #262624;
-      --chip-bg:        #262624;
-      --chip-active-bg: #ffffff;
-      --chip-active-fg: #0b0b0b;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --page:           #0d0d0d;
-    --surface-1:      #1a1a19;
-    --text-primary:   #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted:     #898781;
-    --grid:           #2c2c2a;
-    --baseline:       #383835;
-    --border:         rgba(255,255,255,0.10);
-    --bar:            #3987e5;
-    --bar-track:      #262624;
-    --chip-bg:        #262624;
-    --chip-active-bg: #ffffff;
-    --chip-active-fg: #0b0b0b;
-  }
+:root {
+  --m-black:#1E1B18; --m-orange:#FF4F00; --m-gray:#F1EEEB;
+  --m-graphite:#3A3631; --m-ash:#8A857E; --m-rule:#D8D4CD;
+  --m-grid:#2E2A26; --m-bone:#FAF8F4; --m-orange-dim:#C43D00;
+  --m-steel:#5E7E94; --m-safety:#D9A441; --m-drab:#6A7059;
+  --m-oxide:#7A2E12; --m-sky:#A9CCE0;
+  --m-serif:"Instrument Serif","Times New Roman",serif;
+  --m-mono:"IBM Plex Mono","JetBrains Mono","Courier New",monospace;
+  --m-sans:"Archivo","Inter",sans-serif;
+  --m-dot:"Doto","VT323",monospace;
+}
+* { box-sizing:border-box; border-radius:0 !important; margin:0; }
+body { font-family:var(--m-sans); color:var(--m-graphite); background:var(--m-gray);
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; font-feature-settings:"tnum" 1; }
+a { color:inherit; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--page);
-    color: var(--text-primary);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    line-height: 1.45;
-  }
-  a { color: inherit; }
+/* frame */
+.m-frame { position:relative; margin:16px; border:1px solid var(--m-black); min-height:calc(100vh - 32px); }
+.m-reg { position:absolute; width:7px; height:7px; background:var(--m-black); z-index:5; }
+.m-reg--tl{top:-4px;left:-4px} .m-reg--tr{top:-4px;right:-4px}
+.m-reg--bl{bottom:-4px;left:-4px} .m-reg--br{bottom:-4px;right:-4px}
 
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 64px; }
+/* meta strips */
+.m-meta { display:flex; justify-content:space-between; gap:24px; padding:12px 24px;
+  border-bottom:1px solid var(--m-black); font-family:var(--m-mono); font-size:11px;
+  font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--m-black); }
+.m-meta--bottom { border-bottom:0; border-top:1px solid var(--m-black); justify-content:center; }
+@media (max-width:900px){ .m-meta span:nth-child(2){display:none} }
 
-  header.masthead {
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px;
-    padding-bottom: 16px; border-bottom: 1px solid var(--grid); margin-bottom: 20px;
-  }
-  .brand { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
-  .brand .dot { color: var(--bar); }
-  h1 { font-size: 26px; font-weight: 700; flex-basis: 100%; margin-top: 2px; }
-  .meta-line { font-size: 13px; color: var(--text-muted); flex-basis: 100%; }
-  .theme-toggle {
-    margin-left: auto; font-size: 12px; color: var(--text-secondary);
-    background: var(--chip-bg); border: 1px solid var(--border); border-radius: 999px;
-    padding: 5px 12px; cursor: pointer;
-  }
+/* rails */
+.m-rail { position:fixed; top:50%; transform:translateY(-50%); writing-mode:vertical-rl;
+  font-family:var(--m-mono); font-size:10px; letter-spacing:0.12em; color:var(--m-ash); z-index:4; }
+.m-rail--left { left:22px; rotate:180deg; } .m-rail--right { right:22px; }
+@media (max-width:900px){ .m-rail{display:none} }
 
-  .tiles {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px; margin-bottom: 20px;
-  }
-  .tile {
-    background: var(--surface-1); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 16px;
-  }
-  .tile .label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-  .tile .value { font-size: 24px; font-weight: 700; }
-  .tile .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+/* hero */
+.m-hero { padding:96px 48px 64px; text-align:center; }
+.m-hero__kicker { font-family:var(--m-mono); font-size:12px; font-weight:700;
+  letter-spacing:0.18em; text-transform:uppercase; color:var(--m-ash); margin-bottom:24px; }
+.m-hero__title { font-family:var(--m-serif); font-weight:400;
+  font-size:clamp(52px,8vw,110px); line-height:0.95; letter-spacing:-0.01em; color:var(--m-black); }
+.m-hero__strip { display:grid; grid-template-columns:1fr 1fr 1fr; margin-top:48px; text-align:left;
+  border-top:1px solid var(--m-black); border-bottom:1px solid var(--m-black); }
+.m-hero__strip > div { padding:18px 24px; border-right:1px solid var(--m-black);
+  font-family:var(--m-mono); font-size:13px; line-height:1.55; }
+.m-hero__strip > div:last-child { border-right:0; }
+.m-hero__strip .lbl { display:block; font-size:10px; letter-spacing:0.14em; color:var(--m-ash);
+  text-transform:uppercase; margin-bottom:6px; font-weight:700; }
+@media (max-width:900px){ .m-hero{padding:64px 24px 48px} .m-hero__strip{grid-template-columns:1fr} .m-hero__strip>div{border-right:0;border-bottom:1px solid var(--m-black)} .m-hero__strip>div:last-child{border-bottom:0} }
 
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .chip {
-    font-size: 13px; padding: 6px 14px; border-radius: 999px; cursor: pointer;
-    background: var(--chip-bg); color: var(--text-secondary);
-    border: 1px solid var(--border);
-  }
-  .chip:hover { border-color: var(--baseline); }
-  .chip.active {
-    background: var(--chip-active-bg); color: var(--chip-active-fg);
-    font-weight: 600; border-color: var(--chip-active-bg);
-  }
+/* feed status — the ONE orange element of the hero zone */
+.feed-dot { display:inline-block; width:9px; height:9px; margin-right:8px; background:var(--m-safety); }
+.feed-dot.is-live { background:var(--m-orange); }
+#feedStatus b { font-weight:700; }
 
-  .grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-    gap: 14px;
-  }
-  .card {
-    background: var(--surface-1); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px;
-  }
-  .card-top { display: flex; align-items: center; gap: 8px; }
-  .cat { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
-  .rank { margin-left: auto; font-size: 11px; color: var(--text-muted); }
-  .card h2 { font-size: 16px; font-weight: 700; line-height: 1.3; }
-  .card h2 a { text-decoration: none; }
-  .card h2 a:hover { text-decoration: underline; text-decoration-color: var(--bar); }
-  .why { font-size: 13px; color: var(--text-secondary); }
+/* ticker */
+.m-ticker { background:var(--m-orange);
+  background-image:radial-gradient(circle,rgba(0,0,0,.18) 1px,transparent 1.5px);
+  background-size:6px 6px; overflow:hidden; white-space:nowrap; padding:10px 0;
+  border-top:1px solid var(--m-black); border-bottom:1px solid var(--m-black); }
+.m-ticker span { display:inline-block; font-family:var(--m-dot); font-weight:900;
+  font-size:34px; color:var(--m-orange-dim); animation:m-scroll 60s linear infinite; padding-right:60px; }
+@keyframes m-scroll { to { transform:translateX(-50%); } }
 
-  .outcomes { display: flex; flex-direction: column; gap: 7px; margin-top: 2px; }
-  .outcome { display: grid; grid-template-columns: minmax(90px, 38%) 1fr 48px; align-items: center; gap: 8px; }
-  .o-name {
-    font-size: 13px; color: var(--text-secondary);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .outcome.lead .o-name { color: var(--text-primary); font-weight: 600; }
-  .o-track { display: block; height: 8px; background: var(--bar-track); border-radius: 4px; overflow: hidden; }
-  .o-fill { display: block; height: 100%; background: var(--bar); border-radius: 4px; min-width: 2px; }
-  .o-pct { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
-  .outcome.lead .o-pct { color: var(--text-primary); font-weight: 700; }
+/* methodology */
+.method { padding:64px 48px; max-width:1320px; margin:0 auto; }
+.method h2, .board h2 { font-family:var(--m-serif); font-weight:400; font-size:clamp(30px,4vw,44px);
+  color:var(--m-black); line-height:1.05; margin-bottom:24px; }
+.m-log { font-family:var(--m-mono); font-size:13px; line-height:1.6; color:var(--m-graphite);
+  padding:20px 24px; border:1px solid var(--m-rule); background:var(--m-bone);
+  white-space:pre; overflow-x:auto; }
+.m-log b { color:var(--m-oxide); font-weight:500; }
+@media (max-width:900px){ .method{padding:48px 24px} }
 
-  .card-foot {
-    display: flex; gap: 14px; margin-top: auto; padding-top: 10px;
-    border-top: 1px solid var(--grid); font-size: 12px; color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
-  }
+/* board */
+.board { padding:0 48px 96px; max-width:1320px; margin:0 auto; }
+.board-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:24px; }
+@media (max-width:900px){ .board{padding:0 24px 64px} .board-grid{grid-template-columns:1fr} }
 
-  footer.pagefoot { margin-top: 36px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--grid); padding-top: 14px; }
-  footer.pagefoot a { color: var(--text-secondary); }
+.card { background:var(--m-bone); border:1px solid var(--m-black); display:flex; flex-direction:column; }
+.card__head { display:flex; align-items:stretch; border-bottom:1px solid var(--m-black); }
+.card__lens { flex:1; padding:10px 16px; font-family:var(--m-mono); font-size:10px; font-weight:700;
+  letter-spacing:0.14em; text-transform:uppercase; color:var(--m-ash); align-self:center; }
+.card__rel { display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-width:76px; padding:8px 12px; border-left:1px solid var(--m-black);
+  background:var(--m-black); color:var(--m-gray); }
+.card__rel .num { font-family:var(--m-serif); font-size:30px; line-height:1; }
+.card__rel .cap { font-family:var(--m-mono); font-size:8px; letter-spacing:0.16em; color:var(--m-ash); margin-top:3px; }
+.card__body { padding:20px 24px 24px; display:flex; flex-direction:column; gap:14px; flex:1; }
+.card__title { font-family:var(--m-serif); font-weight:400; font-size:24px; line-height:1.12; color:var(--m-black); }
+.card__title a { text-decoration:none; }
+.card__title a:hover { text-decoration:underline; text-decoration-thickness:1px; }
+.card__why { font-family:var(--m-mono); font-size:12px; line-height:1.55; color:var(--m-graphite); }
+.card__why .tag { color:var(--m-oxide); font-weight:700; }
+
+.outs { display:flex; flex-direction:column; gap:8px; margin-top:2px; }
+.out { display:grid; grid-template-columns:minmax(88px,36%) 1fr 52px; align-items:center; gap:10px; }
+.out .nm { font-family:var(--m-mono); font-size:12px; color:var(--m-graphite);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.out.lead .nm { color:var(--m-black); font-weight:700; }
+.out .tr { display:block; height:9px; background:var(--m-rule); }
+.out .fl { display:block; height:100%; background:var(--m-steel); min-width:2px;
+  transition:width 0.6s ease; }
+.out.lead .fl { background:var(--m-black); }
+.out .pc { font-family:var(--m-mono); font-size:12px; text-align:right;
+  font-variant-numeric:tabular-nums; color:var(--m-graphite); }
+.out.lead .pc { color:var(--m-black); font-weight:700; }
+
+.card__foot { display:flex; gap:18px; padding:12px 24px; border-top:1px dashed var(--m-ash);
+  font-family:var(--m-mono); font-size:11px; color:var(--m-ash); letter-spacing:0.04em;
+  font-variant-numeric:tabular-nums; }
+.card__foot .end { margin-left:auto; }
+
+/* excluded */
+.excluded { padding:0 48px 96px; max-width:1320px; margin:0 auto; }
+.excluded h2 { font-family:var(--m-serif); font-weight:400; font-size:clamp(26px,3vw,36px);
+  color:var(--m-black); margin-bottom:16px; }
+.x-table { width:100%; border-collapse:collapse; font-family:var(--m-mono); font-size:12px; background:var(--m-bone); }
+.x-table th, .x-table td { text-align:left; padding:10px 16px; border:1px solid var(--m-rule); }
+.x-table th { font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--m-ash);
+  border-color:var(--m-black); border-left:0; border-right:0; }
+.x-table td.score { font-weight:700; color:var(--m-oxide); font-variant-numeric:tabular-nums; }
+@media (max-width:900px){ .excluded{padding:0 24px 64px} .x-table td:nth-child(3),.x-table th:nth-child(3){display:none} }
+
+/* footnote */
+.footnote { padding:0 48px 48px; max-width:1320px; margin:0 auto;
+  font-family:var(--m-mono); font-size:11px; line-height:1.7; color:var(--m-ash); }
+@media (max-width:900px){ .footnote{padding:0 24px 32px} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="masthead">
-    <span class="brand">PENFOLD<span class="dot"> ·</span> MARKET WATCH</span>
-    <button class="theme-toggle" id="themeToggle" type="button">Toggle theme</button>
-    <h1>Polymarket Global Dashboard</h1>
-    <p class="meta-line" id="metaLine"></p>
+<div class="m-frame">
+  <span class="m-reg m-reg--tl"></span><span class="m-reg m-reg--tr"></span>
+  <span class="m-reg m-reg--bl"></span><span class="m-reg m-reg--br"></span>
+
+  <header class="m-meta">
+    <span>Penfold · Document-Integrity Desk</span>
+    <span>Event Risk Monitor — Polymarket Feed</span>
+    <span>Moria Commodities AG · Zug CH</span>
   </header>
 
-  <section class="tiles" id="tiles"></section>
-  <nav class="filters" id="filters" aria-label="Category filter"></nav>
-  <main class="grid" id="grid"></main>
+  <section class="m-hero">
+    <p class="m-hero__kicker">Ref. MOR-26-PENFOLD-0002 · Prediction-market exposure relevant to metal-concentrate trade</p>
+    <h1 class="m-hero__title">Event Risk<br>Monitor</h1>
+    <div class="m-hero__strip">
+      <div><span class="lbl">Scope</span>Markets on Polymarket scored for relevance to Penfold's business: concentrate flows ex-Bolivia, China demand, shipping lanes, USD financing, LatAm policy, sanctions.</div>
+      <div><span class="lbl">Curation</span>Curated and scored by the Fable desk model. Inclusion threshold: relevance ≥ 50/100. Odds are trader-implied probabilities, not forecasts.</div>
+      <div><span class="lbl">Feed</span><span id="feedStatus"><span class="feed-dot"></span><b>SNAPSHOT</b> · 2026-07-20 19:32 UTC</span><br>Live re-pricing every 60s via Polymarket Gamma API when reachable from the viewer's network.</div>
+    </div>
+  </section>
 
-  <footer class="pagefoot">
-    Curated snapshot of the most significant live prediction markets. Odds are real-time prices
-    from the public Polymarket Gamma API at fetch time — they move constantly; click any market
-    title for live odds on <a href="https://polymarket.com" target="_blank" rel="noopener">polymarket.com</a>.
-    Prediction-market prices reflect trader sentiment, not certainty. Not investment advice.
-  </footer>
+  <div class="m-ticker"><span id="tickerA"></span><span id="tickerB" aria-hidden="true"></span></div>
+
+  <section class="method">
+    <h2>Relevance scoring</h2>
+    <pre class="m-log" id="methodLog"># LENSES ...... CHINA DEMAND · SHIPPING · LATAM · USD FINANCING · SANCTIONS
+# SCALE ....... 0-100 · DIRECTNESS OF TRANSMISSION TO CONCENTRATE TRADE
+# THRESHOLD ... SCORE >= 50 ON BOARD · BELOW: LOGGED AND EXCLUDED
+# SOURCE ...... POLYMARKET GAMMA API · LIVE MARKET MIDS AT LAST TICK
+# STATUS ...... <b id="logStatus">FEED INIT...</b></pre>
+  </section>
+
+  <section class="board">
+    <h2>The board · <span id="boardCount"></span> markets</h2>
+    <div style="height:24px"></div>
+    <div class="board-grid" id="grid"></div>
+  </section>
+
+  <section class="excluded">
+    <h2>Scored &amp; excluded</h2>
+    <table class="x-table">
+      <thead><tr><th>Market</th><th>Rel.</th><th>Reason for exclusion</th></tr></thead>
+      <tbody id="xBody"></tbody>
+    </table>
+  </section>
+
+  <p class="footnote">
+    Prediction-market prices reflect aggregate trader positioning, not certainty; liquidity varies by market.
+    Odds snapshot 2026-07-20 19:32 UTC from the public Polymarket Gamma API; the in-page script re-prices
+    against the same API where the viewer's network permits (some jurisdictions, incl. CH, block the domain
+    at ISP level — the board then holds the last snapshot and says so above). Informational only.
+    Not investment advice. Not for distribution.
+  </p>
+
+  <footer class="m-meta m-meta--bottom"><span>From warehouse floors to on-chain settlement · Moria ®</span></footer>
 </div>
+<div class="m-rail m-rail--left">PROJECT: PENFOLD MARKET WATCH</div>
+<div class="m-rail m-rail--right">SERIAL NO. 002 / BUILT IN ZUG, CH</div>
 
 <script>
-const DATA = {
-  "fetched_at": "2026-07-20T19:32:42Z",
-  "markets": [
-    {"title":"Will the U.S. invade Iran before 2027?","category":"Geopolitics","slug":"will-the-us-invade-iran-before-2027","endDate":"2026-12-31","volume":45662904.96,"volume24hr":791971.42,"outcomes":[{"name":"Yes","probability":0.265},{"name":"No","probability":0.735}],"why_it_matters":"Direct US military action against Iran would be a major escalation with global oil-market and security implications — and traders price meaningful odds of it."},
-    {"title":"Presidential Election Winner 2028","category":"Politics","slug":"presidential-election-winner-2028","endDate":"2028-11-07","volume":665476241.18,"volume24hr":1293218.63,"outcomes":[{"name":"JD Vance","probability":0.1985},{"name":"Marco Rubio","probability":0.1395},{"name":"Gavin Newsom","probability":0.1175},{"name":"Jon Ossoff","probability":0.0825},{"name":"Alexandria Ocasio-Cortez","probability":0.0805}],"why_it_matters":"Directly prices who will next lead the world's largest economy and military power."},
-    {"title":"Democratic Presidential Nominee 2028","category":"Politics","slug":"democratic-presidential-nominee-2028","endDate":"2028-11-07","volume":1243359659.6,"volume24hr":1081577.62,"outcomes":[{"name":"Gavin Newsom","probability":0.1985},{"name":"Alexandria Ocasio-Cortez","probability":0.1445},{"name":"Jon Ossoff","probability":0.1435},{"name":"Kamala Harris","probability":0.0675},{"name":"Pete Buttigieg","probability":0.051}],"why_it_matters":"The highest-volume market on all of Polymarket — the future direction of the Democratic Party."},
-    {"title":"Republican Presidential Nominee 2028","category":"Politics","slug":"republican-presidential-nominee-2028","endDate":"2028-11-07","volume":677017830.76,"volume24hr":391572.33,"outcomes":[{"name":"Robert F. Kennedy Jr.","probability":0.49},{"name":"J.D. Vance","probability":0.4165},{"name":"Marco Rubio","probability":0.2795},{"name":"Tucker Carlson","probability":0.0295},{"name":"Ron DeSantis","probability":0.0275}],"why_it_matters":"Signals who Republican bettors expect to carry the coalition forward after Trump."},
-    {"title":"Netanyahu out by end of 2026?","category":"Geopolitics","slug":"netanyahu-out-before-2027","endDate":"2026-12-31","volume":123554660.43,"volume24hr":13176.18,"outcomes":[{"name":"Out by Dec 31, 2026","probability":0.375}],"why_it_matters":"Israel's leadership is central to the trajectory of the Gaza war, Iran tensions and regional stability."},
-    {"title":"Will China invade Taiwan by end of 2026?","category":"Geopolitics","slug":"will-china-invade-taiwan-before-2027","endDate":"2026-12-31","volume":38842169.12,"volume24hr":79121.84,"outcomes":[{"name":"Yes","probability":0.0435},{"name":"No","probability":0.9565}],"why_it_matters":"A cross-strait invasion would be one of the most consequential geopolitical and economic shocks possible, given Taiwan's role in global chip supply."},
-    {"title":"Venezuela: head of state at end of 2026?","category":"Geopolitics","slug":"venezuela-leader-end-of-2026","endDate":"2026-12-31","volume":93906049.07,"volume24hr":25435.89,"outcomes":[{"name":"Nicolás Maduro","probability":0.801},{"name":"Delcy Rodríguez","probability":0.125},{"name":"María Corina Machado","probability":0.0255},{"name":"No head of state","probability":0.012}],"why_it_matters":"Tracks the outcome of the escalating US standoff with the Maduro regime, a live foreign-policy flashpoint."},
-    {"title":"Putin out as President of Russia?","category":"Geopolitics","slug":"putin-out-before-2027","endDate":"2027-06-30","volume":18026306.14,"volume24hr":103027.69,"outcomes":[{"name":"By Dec 31, 2026","probability":0.085},{"name":"By Jun 30, 2027","probability":0.165}],"why_it_matters":"Putin's grip on power is directly tied to the war in Ukraine and broader European security."},
-    {"title":"Xi Jinping out before 2027?","category":"Geopolitics","slug":"xi-jinping-out-before-2027","endDate":"2026-12-31","volume":11456716.22,"volume24hr":68879.08,"outcomes":[{"name":"Yes","probability":0.0505},{"name":"No","probability":0.9495}],"why_it_matters":"China's paramount leader shapes global trade, Taiwan policy and great-power competition."},
-    {"title":"Next French Presidential Election","category":"Politics","slug":"next-french-presidential-election","endDate":"2027-04-30","volume":115185975.37,"volume24hr":334813.07,"outcomes":[{"name":"Marine Le Pen","probability":0.3495},{"name":"Édouard Philippe","probability":0.265},{"name":"Jean-Luc Mélenchon","probability":0.125},{"name":"Jordan Bardella","probability":0.0375},{"name":"Bruno Retailleau","probability":0.0305}],"why_it_matters":"France is a nuclear power and EU anchor state — a far-right win would reshape European politics."},
-    {"title":"Brazil Presidential Election","category":"Politics","slug":"brazil-presidential-election","endDate":"2026-10-04","volume":113978654.51,"volume24hr":154549.95,"outcomes":[{"name":"Luiz Inácio Lula da Silva","probability":0.605},{"name":"Flávio Bolsonaro","probability":0.2675},{"name":"Renan Santos","probability":0.0845},{"name":"Michelle Bolsonaro","probability":0.016}],"why_it_matters":"Latin America's largest democracy votes, with the Lula-vs-Bolsonaro-family rivalry shaping the region."},
-    {"title":"Fed decision in July?","category":"Economy","slug":"fed-decision-in-july-181","endDate":"2026-07-29","volume":75190022.15,"volume24hr":3558169.25,"outcomes":[{"name":"No change","probability":0.9245},{"name":"25 bps increase","probability":0.0725},{"name":"25 bps decrease","probability":0.0045}],"why_it_matters":"The Fed's decision — days away — directly moves global borrowing costs, equities and the dollar."},
-    {"title":"How many Fed rate cuts in 2026?","category":"Economy","slug":"how-many-fed-rate-cuts-in-2026","endDate":"2026-12-31","volume":44377932.52,"volume24hr":1087335.53,"outcomes":[{"name":"0 cuts","probability":0.8455},{"name":"1 cut (25 bps)","probability":0.105},{"name":"2 cuts (50 bps)","probability":0.0235}],"why_it_matters":"Sets expectations for the full-year path of US monetary policy — a key driver of recession risk and asset prices."},
-    {"title":"What price will Bitcoin hit in 2026?","category":"Crypto","slug":"what-price-will-bitcoin-hit-before-2027","endDate":"2027-01-01","volume":48625529.43,"volume24hr":284019.77,"outcomes":[{"name":"Drop to $55,000","probability":0.455},{"name":"Drop to $50,000","probability":0.315},{"name":"Drop to $45,000","probability":0.215},{"name":"Rise to $90,000","probability":0.175}],"why_it_matters":"Bitcoin's trajectory is the bellwether for the whole crypto asset class and global speculative risk appetite."},
-    {"title":"Which company has the best AI model end of July?","category":"Tech/AI","slug":"which-company-has-best-ai-model-end-of-july-299","endDate":"2026-07-31","volume":7227748.3,"volume24hr":138379.45,"outcomes":[{"name":"Anthropic","probability":0.9835},{"name":"Google","probability":0.0125},{"name":"OpenAI","probability":0.003},{"name":"Alibaba","probability":0.0015}],"why_it_matters":"Frontier-model leadership is a proxy for the trillion-dollar race between the world's top AI labs."},
-    {"title":"2026 F1 Drivers' Champion","category":"Sports","slug":"2026-f1-drivers-champion","endDate":"2026-12-06","volume":199718143.89,"volume24hr":88752.54,"outcomes":[{"name":"Kimi Antonelli","probability":0.7425},{"name":"Lewis Hamilton","probability":0.1015},{"name":"George Russell","probability":0.085},{"name":"Charles Leclerc","probability":0.0315}],"why_it_matters":"One of the highest-volume non-political markets on Polymarket — and a surprise rookie title run."}
-  ]
-};
-
-const fmtUsd = n => {
-  if (n >= 1e9) return "$" + (n/1e9).toFixed(2) + "B";
-  if (n >= 1e6) return "$" + (n/1e6).toFixed(1) + "M";
-  if (n >= 1e3) return "$" + (n/1e3).toFixed(0) + "K";
-  return "$" + Math.round(n);
-};
-const fmtDate = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric", timeZone:"UTC"});
-const pct = p => (p*100).toFixed(1).replace(/\.0$/,"") + "%";
-
-// Masthead meta
-const fetched = new Date(DATA.fetched_at);
-document.getElementById("metaLine").textContent =
-  DATA.markets.length + " markets, curated by world significance · odds snapshot " +
-  fetched.toLocaleString("en-GB", {day:"numeric", month:"long", year:"numeric", hour:"2-digit", minute:"2-digit", timeZone:"UTC"}) + " UTC";
-
-// Stat tiles
-const totalVol = DATA.markets.reduce((s,m) => s + m.volume, 0);
-const hot = DATA.markets.reduce((a,b) => a.volume24hr > b.volume24hr ? a : b);
-const tiles = [
-  {label: "Markets tracked", value: DATA.markets.length, sub: new Set(DATA.markets.map(m=>m.category)).size + " categories"},
-  {label: "Combined volume", value: fmtUsd(totalVol), sub: "lifetime, all listed markets"},
-  {label: "Most traded (24h)", value: fmtUsd(hot.volume24hr), sub: hot.title},
-  {label: "Largest market", value: fmtUsd(Math.max(...DATA.markets.map(m=>m.volume))), sub: "Democratic Nominee 2028"}
+/* ── Fable-curated board. Snapshot prices: Polymarket Gamma API, 2026-07-20 19:32 UTC. ── */
+const SNAPSHOT_AT = "2026-07-20T19:32:42Z";
+const BOARD = [
+  { slug:"will-china-invade-taiwan-before-2027", rel:92, lens:"China Demand · Shipping Lanes",
+    title:"China invades Taiwan by end of 2026",
+    why:"China is the dominant buyer of metal concentrates; a cross-strait war halts Pacific freight, smelter demand and TC/RC terms overnight.",
+    endDate:"2026-12-31", volume:38842169, volume24hr:79122,
+    outcomes:[{n:"Yes",p:0.0435},{n:"No",p:0.9565}] },
+  { slug:"will-the-us-invade-iran-before-2027", rel:88, lens:"Shipping Lanes · Sanctions Regime",
+    title:"U.S. invades Iran before 2027",
+    why:"Hormuz closure risk: bunker fuel, war-risk insurance and tanker rates reprice every bulk-freight contract Penfold audits.",
+    endDate:"2026-12-31", volume:45662905, volume24hr:791971,
+    outcomes:[{n:"Yes",p:0.265},{n:"No",p:0.735}] },
+  { slug:"venezuela-leader-end-of-2026", rel:85, lens:"LatAm Policy · Sanctions Regime",
+    title:"Venezuela: head of state at end of 2026",
+    why:"Resource-nationalism bellwether for the Andean belt; sanctions regimes directly constrain the payment rails concentrate trades settle on.",
+    endDate:"2026-12-31", volume:93906049, volume24hr:25436,
+    outcomes:[{n:"Nicolás Maduro",p:0.801},{n:"Delcy Rodríguez",p:0.125},{n:"María Corina Machado",p:0.0255},{n:"No head of state",p:0.012}] },
+  { slug:"fed-decision-in-july-181", rel:78, lens:"USD Financing",
+    title:"Fed decision — July 29 meeting",
+    why:"Concentrate trade runs on USD letters of credit; the policy rate is the carry cost of every lot from loading to final assay.",
+    endDate:"2026-07-29", volume:75190022, volume24hr:3558169,
+    outcomes:[{n:"No change",p:0.9245},{n:"25 bps increase",p:0.0725},{n:"25 bps decrease",p:0.0045}] },
+  { slug:"how-many-fed-rate-cuts-in-2026", rel:76, lens:"USD Financing",
+    title:"Fed rate cuts in 2026",
+    why:"The full-year rate path sets trade-finance cost and dollar strength against producer currencies — both feed directly into contract economics.",
+    endDate:"2026-12-31", volume:44377933, volume24hr:1087336,
+    outcomes:[{n:"0 cuts",p:0.8455},{n:"1 cut (25 bps)",p:0.105},{n:"2 cuts (50 bps)",p:0.0235}] },
+  { slug:"brazil-presidential-election", rel:74, lens:"LatAm Policy",
+    title:"Brazil presidential election",
+    why:"LatAm's largest mining economy; its export, tax and environmental line sets the regional policy climate around Bolivian origination.",
+    endDate:"2026-10-04", volume:113978655, volume24hr:154550,
+    outcomes:[{n:"Luiz Inácio Lula da Silva",p:0.605},{n:"Flávio Bolsonaro",p:0.2675},{n:"Renan Santos",p:0.0845},{n:"Michelle Bolsonaro",p:0.016}] },
+  { slug:"xi-jinping-out-before-2027", rel:70, lens:"China Demand",
+    title:"Xi Jinping out before 2027",
+    why:"Leadership stability of the world's largest concentrate importer; succession noise transmits straight into smelter procurement policy.",
+    endDate:"2026-12-31", volume:11456716, volume24hr:68879,
+    outcomes:[{n:"Yes",p:0.0505},{n:"No",p:0.9495}] },
+  { slug:"putin-out-before-2027", rel:62, lens:"Sanctions Regime",
+    title:"Putin out as President of Russia",
+    why:"Russian copper and nickel rerouting under sanctions distorts global TC/RCs and freight; any succession scenario re-opens the sanctions map.",
+    endDate:"2027-06-30", volume:18026306, volume24hr:103028,
+    outcomes:[{n:"By Dec 31, 2026",p:0.085},{n:"By Jun 30, 2027",p:0.165}] },
+  { slug:"netanyahu-out-before-2027", rel:55, lens:"Shipping Lanes",
+    title:"Netanyahu out by end of 2026",
+    why:"Proxy for Middle East de-escalation odds: Red Sea and Suez transit risk price directly into east-bound freight and insurance.",
+    endDate:"2026-12-31", volume:123554660, volume24hr:13176,
+    outcomes:[{n:"Out by Dec 31, 2026",p:0.375}] }
 ];
-document.getElementById("tiles").innerHTML = tiles.map(t =>
-  `<div class="tile"><div class="label">${t.label}</div><div class="value">${t.value}</div><div class="sub">${t.sub}</div></div>`
-).join("");
+const EXCLUDED = [
+  { t:"Next French presidential election", rel:45, r:"EU policy channel real but indirect; no LatAm or concentrate transmission." },
+  { t:"Presidential election winner 2028",  rel:40, r:"Tariff regime matters, but 30 months out — below threshold." },
+  { t:"Democratic nominee 2028",            rel:30, r:"Party-internal race; no direct trade transmission." },
+  { t:"Republican nominee 2028",            rel:30, r:"Party-internal race; no direct trade transmission." },
+  { t:"Bitcoin price targets 2026",         rel:15, r:"No settlement or treasury exposure to BTC in the concentrate book." },
+  { t:"Best AI model end of July",          rel:10, r:"No transmission to physical trade." },
+  { t:"F1 Drivers' Champion 2026",          rel:5,  r:"Entertainment market. No relevance." }
+];
 
-// Category filters
-const cats = ["All", ...[...new Set(DATA.markets.map(m => m.category))]];
-let activeCat = "All";
-const filterEl = document.getElementById("filters");
-function renderFilters() {
-  filterEl.innerHTML = cats.map(c => {
-    const n = c === "All" ? DATA.markets.length : DATA.markets.filter(m => m.category === c).length;
-    return `<button class="chip${c === activeCat ? " active" : ""}" data-cat="${c}" type="button">${c} (${n})</button>`;
-  }).join("");
-}
-filterEl.addEventListener("click", e => {
-  const b = e.target.closest(".chip");
-  if (!b) return;
-  activeCat = b.dataset.cat;
-  renderFilters(); renderGrid();
-});
+const $ = id => document.getElementById(id);
+const fmtUsd = n => n>=1e9 ? "$"+(n/1e9).toFixed(2)+"B" : n>=1e6 ? "$"+(n/1e6).toFixed(1)+"M" : "$"+Math.round(n/1e3)+"K";
+const fmtDate = iso => new Date(iso+"T00:00:00Z").toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).toUpperCase();
+const pct = p => (p*100).toFixed(1).replace(/\.0$/,"")+"%";
 
-// Cards
-function renderGrid() {
-  const shown = DATA.markets.filter(m => activeCat === "All" || m.category === activeCat);
-  document.getElementById("grid").innerHTML = shown.map(m => {
-    const rank = DATA.markets.indexOf(m) + 1;
-    const rows = m.outcomes.map((o, i) => `
-      <div class="outcome${i === 0 ? " lead" : ""}" title="${o.name}: ${pct(o.probability)} implied probability">
-        <span class="o-name">${o.name}</span>
-        <span class="o-track"><span class="o-fill" style="width:${(o.probability*100).toFixed(1)}%"></span></span>
-        <span class="o-pct">${pct(o.probability)}</span>
-      </div>`).join("");
-    return `
-    <article class="card">
-      <div class="card-top"><span class="cat">${m.category}</span><span class="rank">#${rank}</span></div>
-      <h2><a href="https://polymarket.com/event/${m.slug}" target="_blank" rel="noopener">${m.title}</a></h2>
-      <p class="why">${m.why_it_matters}</p>
-      <div class="outcomes">${rows}</div>
-      <div class="card-foot">
-        <span>Vol ${fmtUsd(m.volume)}</span>
-        <span>24h ${fmtUsd(m.volume24hr)}</span>
-        <span style="margin-left:auto">Ends ${fmtDate(m.endDate)}</span>
+const leadIdx = m => m.outcomes.reduce((best,o,j) => o.p > m.outcomes[best].p ? j : best, 0);
+
+function renderBoard() {
+  $("boardCount").textContent = BOARD.length;
+  $("grid").innerHTML = BOARD.map((m,i) => `
+    <article class="card" data-slug="${m.slug}">
+      <div class="card__head">
+        <span class="card__lens">${m.lens}</span>
+        <span class="card__rel"><span class="num">${m.rel}</span><span class="cap">REL / 100</span></span>
       </div>
-    </article>`;
-  }).join("");
+      <div class="card__body">
+        <h3 class="card__title"><a href="https://polymarket.com/event/${m.slug}" target="_blank" rel="noopener">${m.title}</a></h3>
+        <p class="card__why"><span class="tag">WHY:</span> ${m.why}</p>
+        <div class="outs">${m.outcomes.map((o,j) => `
+          <div class="out${j===leadIdx(m)?" lead":""}" title="${o.n}: implied probability">
+            <span class="nm">${o.n}</span>
+            <span class="tr"><span class="fl" style="width:${(o.p*100).toFixed(1)}%"></span></span>
+            <span class="pc">${pct(o.p)}</span>
+          </div>`).join("")}
+        </div>
+      </div>
+      <div class="card__foot">
+        <span>VOL ${fmtUsd(m.volume)}</span><span>24H ${fmtUsd(m.volume24hr)}</span>
+        <span class="end">ENDS ${fmtDate(m.endDate)}</span>
+      </div>
+    </article>`).join("");
+  $("xBody").innerHTML = EXCLUDED.map(x =>
+    `<tr><td>${x.t}</td><td class="score">${x.rel}</td><td>${x.r}</td></tr>`).join("");
+  renderTicker();
 }
 
-// Theme toggle
-document.getElementById("themeToggle").addEventListener("click", () => {
-  const root = document.documentElement;
-  const dark = root.getAttribute("data-theme") === "dark" ||
-    (!root.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
-  root.setAttribute("data-theme", dark ? "light" : "dark");
-});
+function renderTicker() {
+  const txt = BOARD.map(m => {
+    const o = m.outcomes[leadIdx(m)];
+    return `${m.title.toUpperCase()} — ${o.n.toUpperCase()} ${pct(o.p)}`;
+  }).join("  ///  ") + "  ///  ";
+  $("tickerA").textContent = txt; $("tickerB").textContent = txt;
+}
 
-renderFilters();
-renderGrid();
+function setFeed(live, whenIso) {
+  const t = whenIso ? whenIso.slice(0,16).replace("T"," ")+" UTC" : "";
+  $("feedStatus").innerHTML = live
+    ? `<span class="feed-dot is-live"></span><b>LIVE</b> · LAST TICK ${t}`
+    : `<span class="feed-dot"></span><b>SNAPSHOT</b> · ${SNAPSHOT_AT.slice(0,16).replace("T"," ")} UTC`;
+  $("logStatus").textContent = live
+    ? `FEED LIVE · LAST TICK ${t}`
+    : `FEED UNREACHABLE · HOLDING SNAPSHOT ${SNAPSHOT_AT.slice(0,16).replace("T"," ")} UTC`;
+}
+
+/* ── live re-pricing: one request for all slugs, refresh 60s ── */
+async function tick() {
+  const url = "https://gamma-api.polymarket.com/events?" + BOARD.map(m => "slug="+encodeURIComponent(m.slug)).join("&");
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 10000);
+  try {
+    const res = await fetch(url, {signal: ctl.signal});
+    clearTimeout(to);
+    if (!res.ok) throw new Error("HTTP "+res.status);
+    const events = await res.json();
+    if (!Array.isArray(events) || !events.length) throw new Error("empty");
+    for (const ev of events) {
+      const m = BOARD.find(b => b.slug === ev.slug);
+      if (!m || !Array.isArray(ev.markets)) continue;
+      const rows = [];
+      for (const mk of ev.markets) {
+        if (mk.closed) continue;
+        let prices, names;
+        try { prices = JSON.parse(mk.outcomePrices || "[]"); names = JSON.parse(mk.outcomes || "[]"); }
+        catch { continue; }
+        if (!prices.length) continue;
+        if (ev.markets.length === 1 && names.length === 2 && names[0] === "Yes") {
+          rows.push({n:"Yes", p:+prices[0]}, {n:"No", p:+prices[1]});
+        } else {
+          rows.push({n: mk.groupItemTitle || mk.question, p:+prices[0]});
+        }
+      }
+      if (!rows.length) continue;
+      if (!(rows.length === 2 && rows[0].n === "Yes")) rows.sort((a,b) => b.p - a.p);
+      m.outcomes = rows.slice(0, 5);
+      if (ev.volume) m.volume = +ev.volume;
+      if (ev.volume24hr) m.volume24hr = +ev.volume24hr;
+    }
+    renderBoard();
+    setFeed(true, new Date().toISOString());
+  } catch (e) {
+    clearTimeout(to);
+    setFeed(false);
+  }
+}
+
+renderBoard();
+setFeed(false);
+tick();
+setInterval(tick, 60000);
 </script>
 </body>
 </html>
